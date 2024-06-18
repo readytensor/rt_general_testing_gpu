@@ -2,6 +2,7 @@ import json
 import os
 import random
 import time
+import torch
 import tracemalloc
 import numpy as np
 import pandas as pd
@@ -231,5 +232,10 @@ class ResourceTracker(object):
         _, peak_memory = tracemalloc.get_traced_memory()
         tracemalloc.stop()
         elapsed_time = self.end_time - self.start_time
+        if torch.cuda.is_available():
+            gpu_memory = torch.cuda.get_device_properties(0).total_memory
+        else:
+            gpu_memory = 0
         self.logger.info(f"CPU Memory allocated (peak): {peak_memory / 10**6:.2f}MB")
         self.logger.info(f"Execution time: {elapsed_time:.2f} seconds")
+        self.logger.info(f"GPU Memory size: {gpu_memory / 10**6:.2f}MB")
